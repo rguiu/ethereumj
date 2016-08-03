@@ -11,6 +11,7 @@ import org.ethereum.sync.SyncManager;
 import org.ethereum.sync.SyncState;
 import org.ethereum.sync.SyncStatistics;
 import org.ethereum.util.ByteUtil;
+import org.ethereum.validator.HardForkRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -64,6 +65,8 @@ public class Eth62 extends EthHandler {
 
     protected SyncState syncState = IDLE;
     protected boolean syncDone = false;
+
+    protected HardForkRule hardForkRule;
 
     /**
      * Last block hash to be asked from the peer,
@@ -671,6 +674,17 @@ public class Eth62 extends EthHandler {
                 if (logger.isInfoEnabled()) logger.info(
                         "Peer {}: invalid response to {}, first header is invalid {}",
                         channel.getPeerIdShort(), request, first
+                );
+                return false;
+            }
+        }
+
+        // check that these headers belong to classic chain
+        for (BlockHeader header: headers) {
+            if (!hardForkRule.validate(header)) {
+                if (logger.isInfoEnabled()) logger.info(
+                    "Peer {}: block from HF chain",
+                    channel.getPeerIdShort()
                 );
                 return false;
             }
