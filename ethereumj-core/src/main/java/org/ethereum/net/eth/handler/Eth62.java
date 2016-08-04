@@ -66,7 +66,7 @@ public class Eth62 extends EthHandler {
     protected SyncState syncState = IDLE;
     protected boolean syncDone = false;
 
-    protected HardForkRule hardForkRule;
+    protected HardForkRule hardForkRule = new HardForkRule();
 
     /**
      * Last block hash to be asked from the peer,
