@@ -42,7 +42,7 @@ public class EthereumFactory {
     }
 
     public static Ethereum createEthereum(Class ... springConfigs) {
-        logger.info("Starting EthereumJ...");
+        logger.info("Starting EthereumJ... (for Ethereum Classic blockchain)");
         ApplicationContext context = new AnnotationConfigApplicationContext(springConfigs);
 
         return context.getBean(Ethereum.class);
