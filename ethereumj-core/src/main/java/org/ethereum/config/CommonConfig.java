@@ -204,7 +204,8 @@ public class CommonConfig {
                 new GasValueRule(),
                 new ExtraDataRule(systemProperties()),
                 new ProofOfWorkRule(),
-                new GasLimitRule(systemProperties())
+                new GasLimitRule(systemProperties()),
+                new HardForkRule()
         ));
 
         return new BlockHeaderValidator(rules);

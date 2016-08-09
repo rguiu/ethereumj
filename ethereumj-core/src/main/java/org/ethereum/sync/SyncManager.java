@@ -11,6 +11,7 @@ import org.ethereum.net.server.ChannelManager;
 import org.ethereum.util.ExecutorPipeline;
 import org.ethereum.util.Functional;
 import org.ethereum.validator.BlockHeaderValidator;
+import org.ethereum.validator.HardForkRule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.spongycastle.util.encoders.Hex;
@@ -35,7 +36,6 @@ import static org.ethereum.core.ImportResult.*;
 public class SyncManager {
 
     private final static Logger logger = LoggerFactory.getLogger("sync");
-
 
     private static final int BLOCK_QUEUE_LIMIT = 20000;
     private static final int HEADER_QUEUE_LIMIT = 20000;
