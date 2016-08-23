@@ -1,45 +1,33 @@
 package org.ethereum.datasource;
 
 import static org.ethereum.util.ByteUtil.wrap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.ethereum.db.ByteArrayWrapper;
 import org.iq80.leveldb.DBException;
-import net.openhft.chronicle.map.ChronicleMap;
 
-public class HashMapDB implements KeyValueDataSource {
+public class ChronicleDB implements KeyValueDataSource {
 
-    ChronicleMap<ByteArrayWrapper,  ByteArrayWrapper> storage = ChronicleMap
-            .of(ByteArrayWrapper.class, ByteArrayWrapper.class)
-            .averageKey(wrap("99db6f4f5fea3aa5cfbe8436feba8e213d06d1e8".getBytes()))
-            .averageValueSize(64000)
-            .entries(50_000)
-            .create();
-
+        Map<ByteArrayWrapper, byte[]> storage = new HashMap<>();
     private boolean clearOnClose = true;
 
     @Override
-    public void delete(byte[] arg0) throws DBException {
+    public synchronized void delete(byte[] arg0) throws DBException {
         storage.remove(wrap(arg0));
     }
 
-    @Override
-    public byte[] get(byte[] arg0) throws DBException {
-        try {
-            return storage.get(wrap(arg0)).getData();
-        } catch (NullPointerException ne) {
-            return null;
-        }
-    }
 
     @Override
-    public byte[] put(byte[] key, byte[] value) throws DBException {
-        try {
-            return storage.put(wrap(key), wrap(value)).getData();
-        } catch (NullPointerException ne) {
-            return null;
-        }
+    public synchronized byte[] get(byte[] arg0) throws DBException {
+        return storage.get(wrap(arg0));
+    }
+
+
+    @Override
+    public synchronized byte[] put(byte[] key, byte[] value) throws DBException {
+        return storage.put(wrap(key), value);
     }
 
     /**
@@ -47,7 +35,7 @@ public class HashMapDB implements KeyValueDataSource {
      *
      * @return int
      */
-    public int getAddedItems() {
+    public synchronized int getAddedItems() {
         return storage.size();
     }
 
@@ -72,7 +60,7 @@ public class HashMapDB implements KeyValueDataSource {
     }
 
     @Override
-    public Set<byte[]> keys() {
+    public synchronized Set<byte[]> keys() {
         Set<byte[]> keys = new HashSet<>();
         for (ByteArrayWrapper key : storage.keySet()){
             keys.add(key.getData());
@@ -81,13 +69,13 @@ public class HashMapDB implements KeyValueDataSource {
     }
 
     @Override
-    public void updateBatch(Map<byte[], byte[]> rows) {
+    public synchronized void updateBatch(Map<byte[], byte[]> rows) {
         for (byte[] key :  rows.keySet()){
-            storage.put(wrap(key), wrap(rows.get(key)));
+            storage.put(wrap(key), rows.get(key));
         }
     }
 
-    public HashMapDB setClearOnClose(boolean clearOnClose) {
+    public ChronicleDB setClearOnClose(boolean clearOnClose) {
         this.clearOnClose = clearOnClose;
         return this;
     }
